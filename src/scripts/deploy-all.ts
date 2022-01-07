@@ -19,7 +19,7 @@ export async function main(ns: NS) {
             await ns.sleep(10);
             node.infected = ns.hasRootAccess(node.name);
         }
-        const infectedHosts = linearNodes.map(x => x.infected ? 1 : 0).reduce((a, b) => a + b, 0);
+        const infectedHosts = linearNodes.filter(x => x.infected).length;
         const infectionPercentage = infectedHosts * 100 / linearNodes.length; 
         
         ns.print(`Of [${linearNodes.length}] nodes, infected [${infectedHosts}] (~${infectionPercentage.toFixed(1)}%)`);

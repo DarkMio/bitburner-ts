@@ -5,9 +5,8 @@ A Typescript template project with debugging support, import rewrites and develo
 ## How to use
 
 1. Transpile/Run Server: `npm run watch`
-2. Set an alias once: `alias init="wget http://localhost:8000/init.js init.js; wget http://localhost:8000/deployment/self-update.js deployment/self-update.js; run init.js"`
-3. `init.js`
-3. Start `auto.js`
+2. Set an alias once in bitburner: `alias init="wget http://localhost:8000/init.js init.js; wget http://localhost:8000/deployment/self-update.js deployment/self-update.js"`
+3. Run in bitburner: `init`
 
 ### Requirements
 

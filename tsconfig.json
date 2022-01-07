@@ -1,13 +1,9 @@
 {
   "compilerOptions": {
     "module": "ES6",
-    "moduleResolution": "node",
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
     "target": "ESNext",
     "noImplicitAny": true,
-    // "sourceMap": true,
-    "strict": false,
+    "strict": true,
     "outDir": "dist",
     "baseUrl": ".",
     "paths": {
@@ -24,6 +20,6 @@
       }]
     }],
   },
-  "include": [ "src/**/*" ],
-  "exclude": [ "src/transformer/**" ]
+  "include": [ "src/**/*", "node-modules/ttypescript/**/*" ],
+  "exclude": [ "transformer/**/*" ]
 }
