@@ -1,0 +1,29 @@
+{
+  "compilerOptions": {
+    "module": "ES6",
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "target": "ESNext",
+    "noImplicitAny": true,
+    // "sourceMap": true,
+    "strict": false,
+    "outDir": "dist",
+    "baseUrl": ".",
+    "paths": {
+      "*": ["node_modules/*", "src/types/*", "src/*"],
+    },
+    "declaration": false,
+    "inlineSourceMap": true,
+    "sourceRoot": "http://localhost:8000/sources/",
+    "plugins": [{
+      "transform": "./transformer/rewrite-imports.ts",
+      "replacements": [{
+        "regex": "^(.*)$",
+        "replace": "/$1.js"
+      }]
+    }],
+  },
+  "include": [ "src/**/*" ],
+  "exclude": [ "src/transformer/**" ]
+}

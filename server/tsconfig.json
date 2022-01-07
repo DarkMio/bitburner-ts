@@ -1,0 +1,30 @@
+{
+    "compilerOptions": {
+      "module": "CommonJS",
+      "moduleResolution": "node",
+      "esModuleInterop": true,
+      "allowSyntheticDefaultImports": true,
+      "target": "ESNext",
+      "noImplicitAny": true,
+      "sourceMap": false,
+      "strict": false,
+      "outDir": "dist",
+      "baseUrl": ".",
+      "paths": {
+        "*": ["../node_modules/*", "./*"],
+      },
+      "types": [ "node" ],
+      "declaration": false,
+      "plugins": [{
+        "transform": "./transformer/rewrite-imports.ts",
+        "replacements": [{
+          "regex": "^(.*)$",
+          "replace": "/$1.js"
+        }]
+      }],
+    },
+    
+    "include": ["./*"],
+    "exclude": [ "src/transformer/**" ]
+  }
+  
