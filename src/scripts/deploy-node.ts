@@ -8,6 +8,8 @@ const SelfHackStage1 = "/scripts/self-hack-1.js";
 const SshPortCommand = "BruteSSH.exe";
 const FtpPortCommand = "FTPcrack.exe";
 const SmtpPortCommand = "relaySMTP.exe";
+const HttpPortCommand = "HTTPWorm.exe";
+const SqlPortCommand = "SQLInject.exe";
 const NukeCommand = "NUKE.exe";
 
 export async function main(nss: NS) {
@@ -32,6 +34,16 @@ export async function main(nss: NS) {
     await executeIfAvailable(ns, SmtpPortCommand, async () => {
         ns.relaysmtp(target);
         hackCount += 1;
+    });
+
+    await executeIfAvailable(ns, HttpPortCommand, async () => {
+        ns.httpworm(target);
+        hackCount += 1;
+    });
+
+    await executeIfAvailable(ns, SqlPortCommand, async () => {
+        ns.sqlinject(target);
+        hackCount += 1;
     })
     
     // ns.installBackdoor()
@@ -42,13 +54,22 @@ export async function main(nss: NS) {
             ns.nuke(target);
             ns.print(`${NukeCommand} on '${target}'`);
         });
-    } else {
+    }
+
+    if(!ns.hasRootAccess(target)) {
         return;
     }
-    
-    ns.print(`Deploying onto '${target}'`)
 
+    const ramcost = ns.getScriptRam(SelfHackStage1);
+    const totalRam = ns.getServerMaxRam(target);
+    // some machines don't have ram, no use doing anything to them.
+    if(totalRam <= 0) {
+        return;
+    }
+
+    ns.print(`Deploying onto '${target}'`)
     ns.killall(target);
+
     await ns.scp(["/scripts/self-hack-0.js", SelfHackStage1], 'home', target);
     const args = ns.args.slice(1);
     let pid = ns.exec("/scripts/self-hack-0.js", target, 1, ...args);
@@ -59,17 +80,16 @@ export async function main(nss: NS) {
     await ns.sleep(50);
     // calculate the most optimal course of action
     ns.killall(target);
-    const ramcost = ns.getScriptRam(SelfHackStage1);
-    const [total, used] = ns.getServerRam(target);
-    const free = total - used;
+    const used = ns.getServerUsedRam(target);
+    const free = totalRam - used;
     const threadCount = Math.floor(free / ramcost);
     if(threadCount < 1) {
-        ns.tprint(`NOT_ENOUGH_MEMORY: Cannot execute '${SelfHackStage1}' on '${target}'\nRAM available: [${free}], script cost: [${ramcost}] (total RAM: ${total})`);
+        ns.tprint(`NOT_ENOUGH_MEMORY: Cannot execute '${SelfHackStage1}' on '${target}'\nRAM available: [${free}], script cost: [${ramcost}] (total RAM: ${totalRam})`);
         return;
     }
     ns.print(`Executing ${threadCount}x${SelfHackStage1}`);
     pid = ns.exec(SelfHackStage1, target, threadCount, target, ...args);
-    if(pid === 0) {
+    if(pid <= 0) {
         ns.tprint(`Could not Stage 2 at ${target}`);
         ns.exit();
     }

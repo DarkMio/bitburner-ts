@@ -34,11 +34,11 @@ const infect = async (ns: NS, target: string): Promise<boolean> => {
 
     if(hackingLevel >= required) {
         const pid = execIfEnoughRam(ns, '/scripts/deploy-node.js', 'home', 1, target);
-        if(pid === 0) {
+        if(pid <= 0) {
             ns.tprint(`Infect of ${target} failed, reason: ${pid}`);
         }
         await ns.sleep(150);
-        return pid !== 0;
+        return pid > 0;
     }
     return false;
 }
