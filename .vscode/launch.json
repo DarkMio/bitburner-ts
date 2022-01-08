@@ -5,6 +5,18 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Attach to Bitburner Render Process",
+            "address": "127.0.0.1",
+            "port": 9222,
+            "request": "attach",
+            "type": "pwa-chrome",
+            "timeout": 15,
+            "webRoot": "${workspaceRoot}/src",
+            "sourceMapPathOverrides": {
+                "http://localhost:8000/sources/*": "${workspaceRoot}/src/*"
+            } 
+        },
+        {
             "name": "Launch Edge",
             "request": "launch",
             "type": "pwa-msedge",
