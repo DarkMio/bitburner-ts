@@ -3,8 +3,9 @@ import generateIps from 'contract/generate-ips';
 import largestPrimeFactor from 'contract/largest-prime-factor';
 import maxSubarray from 'contract/max-subarray';
 import mergeOverlaps from 'contract/merge-overlaps';
-import { uniquePathsII } from 'contract/paths-in-grid';
+import { uniquePathsI, uniquePathsII } from 'contract/paths-in-grid';
 import removeParanthesis from 'contract/remove-paranthesis';
+import spiral from 'contract/spiralize-matrix';
 import { maxPrice, AST4 } from 'contract/stock-trader'
 import { getNodes, Node } from 'utils/node-scan';
 
@@ -22,8 +23,9 @@ export async function main(ns: NS) {
     }
 
     if(contracts.length > 0) {
+        ns.tprint(`Found contracts: ${contracts.map(x => `${x.filename}@${x.host}`).join('; ')}`);
         const unsolved = solveContracts(ns, contracts);
-        unsolved.forEach(x => ns.tprint(`Unsolved contract ${x.filename} '${ns.codingcontract.getContractType(x.filename, x.host)}'`))
+        unsolved.forEach(x => ns.tprint(`Unsolved contract ${x.filename} '${ns.codingcontract.getContractType(x.filename, x.host)}' @ ${x.host}`))
     }
 }
 
@@ -66,18 +68,27 @@ const solveContracts = (ns: NS, contracts: ContractInfo[]) => {
             case "Generate IP Addresses":
                 solution = generateIps(parseInt(data));
                 break;
+            case "Unique Paths in a Grid I":
+                solution = uniquePathsI(data as number[]);
+                break;
             case "Unique Paths in a Grid II":
                 solution = uniquePathsII(data as number[][]);
                 break;
             case "Sanitize Parentheses in Expression":
                 solution = removeParanthesis(data as string);
                 break;
+            case "Spiralize Matrix":
+                solution = [JSON.stringify(spiral(data as number[][]))];
         }
         if(solution === -1) {
             unsolved.push(contract);
             continue;
         }
-        const reward = ns.codingcontract.attempt(solution, contract.filename, contract.host);
+        const reward = ns.codingcontract.attempt(solution, contract.filename, contract.host, { returnReward: true });
+        if(reward === "") {
+            unsolved.push(contract);
+            continue;
+        }
         ns.tprint(`Solved contract '${type}', reward: ${reward}`);
     }
     return unsolved;

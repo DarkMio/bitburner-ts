@@ -58,7 +58,7 @@ export const exec = (ns: NS, script: string, host: string, onSuccess: (pid: numb
  * @returns `-1` when the script does not exist, `-2` when not enouguh RAM is available
  */
 export const execIfEnoughRam = (ns: NS, script: string, host: string, numThreads?: number, ...args: (string | number | boolean)[]) => {
-    const ramAvailable = ns.getServerUsedRam(host);
+    const ramAvailable = ns.getServerMaxRam(host) - ns.getServerUsedRam(host);
     const ramCost = ns.getScriptRam(script);
     if(ramCost === 0) {
         return -1;
@@ -69,6 +69,20 @@ export const execIfEnoughRam = (ns: NS, script: string, host: string, numThreads
     }
 
     return ns.exec(script, host, numThreads, ...args);
+}
+
+export const execUntilDone = async (ns: NS, script: string, host: string, numThreads?: number, ...args: (string | number | boolean)[]) =>{
+    const pid = ns.exec(script, host, numThreads, ...args);
+    if(pid <= 0) {
+        return false;
+    }
+
+    const processes = ns.ps(host);
+    while(processes.some(x => x.args === args && x.filename === script && x.pid === pid && x.threads === (numThreads ?? 1))) {
+        // don't choke me, daddy vm.
+        await ns.sleep(15);
+    }
+    return true;
 }
 
 export default patch; 
