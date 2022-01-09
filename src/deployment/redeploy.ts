@@ -1,5 +1,5 @@
 import { NS } from 'bitburner';
-import { exec } from 'utils/patch-ns';
+import execIfExists from 'utils/exec-if-exists';
 
 export const UpdateList = "index.txt";
 export const DeployFolder = "";
@@ -18,6 +18,7 @@ interface UpdateList {
  * @param {NS} ns 
  */
 export async function main(ns: NS) {
+    ns.disableLog('ALL');
     ns.tprint("# Starting redeployment");
 
     let lastChange = new Date(0);
@@ -38,7 +39,7 @@ export async function main(ns: NS) {
         lastChange = updateDate;
         // remove the update list
         ns.rm(UpdateList, HomeHost);
-        ns.tprint(`## Downloading [${updateList.fileList.length}] source files`)
+        ns.print(`## Downloading [${updateList.fileList.length}] source files`)
 
         for(const idx in updateList.fileList) {
             const file = updateList.fileList[idx];
@@ -48,13 +49,11 @@ export async function main(ns: NS) {
             await ns.sleep(5);
         }
         
-        exec(ns, `${DeployFolder}${BootstrapScript}`, HomeHost, (pid) => {
-            ns.tprint(`## Downloaded all files, starting '${BootstrapScript}' as PID [${pid}]`);
-        }, () => {
-            ns.tprint(`## FAILED to spawn bootstrap script, start with: run ${DeployFolder}${BootstrapScript}`);
-        });
+        if(!execIfExists(ns, `${DeployFolder}${BootstrapScript}`, HomeHost)) {
+            ns.print(`## FAILED to spawn bootstrap script, start with: run ${DeployFolder}${BootstrapScript}`);
+        }
 
-        ns.tprint("# Self updating complete");
+        ns.print("# Self updating complete");
         await ns.sleep(10_000);
     }
 }

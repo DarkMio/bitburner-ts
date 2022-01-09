@@ -25,35 +25,36 @@ export const Host = "http://localhost:8000";
  * @param {NS} ns 
  */
 export async function main(ns: NS) {
-    ns.tprint("# Starting self updater")
+    ns.disableLog('ALL');
+    ns.print("# Starting self updater")
 
     // overwrite the update script
-    ns.tprint(`## Updating '${InitScriptFile}'`);
+    ns.print(`## Updating '${InitScriptFile}'`);
     // deleting the current script hardcode first, might change later
     // ns.rm(InitScriptFile, HomeHost);
     if(!await ns.wget(`${Host}/${InitScriptFile}`, InitScriptFile, HomeHost)) {
-        ns.tprint(`# CRITICAL failure, could not download init script file (no connection?)`);
+        ns.print(`# CRITICAL failure, could not download init script file (no connection?)`);
         return;
     }
 
     // gets all files in the deploy folder
     const deployedFiles = ns.ls(HomeHost, "/**/*.js");
-    ns.tprint(`## Removing [${deployedFiles.length}] source files`)
+    ns.print(`## Removing [${deployedFiles.length}] source files`)
     // deployedFiles.forEach(x => ns.rm(x, HomeHost));
 
     await ns.sleep(5);
-    ns.tprint(`## Updating '${SelfUpdateFile}', '${RedeployFile}', '${UtilsFile}'`);
+    ns.print(`## Updating '${SelfUpdateFile}', '${RedeployFile}', '${UtilsFile}'`);
     if(!await ns.wget(`${Host}${SelfUpdateLocation}`, SelfUpdateLocation, HomeHost) ||
        !await ns.wget(`${Host}${RedeployLocation}`, RedeployLocation, HomeHost) ||
        !await ns.wget(`${Host}${UtilsLocation}`, UtilsLocation, HomeHost)) {
-        ns.tprint(`# CRITICAL failure, could not download deployment files (no connection?)`);
+        ns.print(`# CRITICAL failure, could not download deployment files (no connection?)`);
         return; 
     }
 
     const pid = ns.exec(RedeployLocation, HomeHost, 1, ...ns.args, DeployKey);
     if(pid === 0) {
-        ns.tprint(`## FAILED to spawn redeployment, start manually with: run ${RedeployLocation} -t 1 ${DeployKey}`);
+        ns.print(`## FAILED to spawn redeployment, start manually with: run ${RedeployLocation} -t 1 ${DeployKey}`);
     } else {
-        ns.tprint(`## Spawned redeployment, PID: [${pid}]`);
+        ns.print(`## Spawned redeployment, PID: [${pid}]`);
     }
 }

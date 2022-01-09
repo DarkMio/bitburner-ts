@@ -7,6 +7,10 @@ export async function main(nss: NS) {
 
     while(true) {
         const target = ns.fetchTarget();
+        if(target === null) {
+            await ns.sleep(500);
+            continue;
+        }
         await ns.hack(target.currentTarget);
     }
 }

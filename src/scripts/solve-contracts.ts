@@ -9,6 +9,7 @@ import spiral from 'contract/spiralize-matrix';
 import { maxPrice, AST4 } from 'contract/stock-trader'
 import { getNodes, Node } from 'utils/node-scan';
 import waysToExpress, { InputData } from 'contract/ways-to-express';
+import waysToSum from 'contract/ways-to-sum';
 
 interface ContractInfo {
     host: string,
@@ -16,6 +17,7 @@ interface ContractInfo {
 } 
 
 export async function main(ns: NS) {
+    ns.disableLog('ALL');
     const nodes = (await getNodes(ns, 'home')).filter(x => x.name !== 'home');
     while(true) {
         const contracts: ContractInfo[] = []; 
@@ -25,7 +27,6 @@ export async function main(ns: NS) {
         }
 
         if(contracts.length > 0) {
-            ns.tprint(`Found contracts: ${contracts.map(x => `${x.filename}@${x.host}`).join('; ')}`);
             const unsolved = await solveContracts(ns, contracts);
             unsolved.forEach(x => ns.tprint(`Unsolved contract ${x.filename} '${ns.codingcontract.getContractType(x.filename, x.host)}' @ ${x.host}`))
         }
@@ -73,6 +74,9 @@ const solveContracts = async (ns: NS, contracts: ContractInfo[]) => {
                 break;
             case "Find All Valid Math Expressions":
                 solution = [await waysToExpress(ns, data as InputData)];
+                break;
+            case "Total Ways to Sum":
+                solution = waysToSum(data as number);
 
         }
         if(solution === -1) {
@@ -84,7 +88,7 @@ const solveContracts = async (ns: NS, contracts: ContractInfo[]) => {
             unsolved.push(contract);
             continue;
         }
-        ns.tprint(`Solved contract '${type}', reward: ${reward}`);
+        ns.print(`Solved contract '${type}', reward: ${reward}`);
     }
     return unsolved;
 }

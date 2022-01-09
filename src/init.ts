@@ -20,10 +20,10 @@ export async function main(ns: NS) {
     ns.ps().filter(x => x.filename !== ns.getScriptName()).forEach(x => ns.kill(x.pid))
     const pid = ns.exec(SelfUpdateLocation, HomeHost, 1, ...ns.args);
     if(pid === 0) {
-        ns.tprint(`## FAILED to spawn self-updater, start manually with: run ${SelfUpdateLocation} -t 1`);
+        ns.tprint(`FAILED to spawn self-updater, start manually with: run ${SelfUpdateLocation} -t 1`);
         return;
     } else {
-        ns.tprint(`## Spawned self updater, PID: [${pid}]`);
+        ns.tprint(`Spawned self updater`);
     }
     
 }

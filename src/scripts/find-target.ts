@@ -15,6 +15,7 @@ export interface TargetPayload {
 }
 
 export async function main(ns: NS) {
+    ns.disableLog('ALL');
     while(true) {
         const linearNodes = (await getNodes(ns, 'home') as RootedNode[])
             .filter(x => x.name !== 'home')
@@ -40,19 +41,18 @@ export async function main(ns: NS) {
 }
 
 const findTargetNode = async (ns: NS, nodes: RootedNode[]) => {
-    const mostCurrentMoney = nodes.reduce((prev, current) => (prev.moneyPerHack > current.moneyPerHack) ? prev : current);
+    const mostCurrentMoney = nodes.filter(x => ns.getServerMaxMoney(x.name) !== ns.getServerMoneyAvailable(x.name)).reduce((prev, current) => (prev.moneyPerHack > current.moneyPerHack) ? prev : current);
     const mostMoneyPotential = nodes.reduce((prev, current) => prev.potentialMoney > current.potentialMoney ? prev : current);
-    ns.print(`# Target Node is now '${mostCurrentMoney.name}': [~${mostCurrentMoney.moneyPerHack.toFixed(2)}$/hack]`);
-    ns.print(`# Highest Potential Node: '${mostMoneyPotential.name}' [~${mostMoneyPotential.potentialMoney.toFixed(2)}$/hack]`)
-    const payload: TargetPayload = {
-        mostMoney: mostCurrentMoney.name,
-        mostPotential: mostMoneyPotential. name
-    }
+    // ns.print(`# Target Node is now '${mostCurrentMoney.name}': [~${mostCurrentMoney.moneyPerHack.toFixed(2)}$/hack]`);
+    // ns.print(`# Highest Potential Node: '${mostMoneyPotential.name}' [~${mostMoneyPotential.potentialMoney.toFixed(2)}$/hack]`)
+    const payload = {
+        currentTarget: mostCurrentMoney.name,
+        // somehow 'joesguns' seems to be always the best target
+        highestPotential: mostMoneyPotential.name
+    };
     const payloadText = JSON.stringify(payload);
     ns.print(`## Publishing payload: ${payloadText}`);
-
-    await patch(ns).publishTarget({
-        currentTarget: mostCurrentMoney.name,
-        highestPotential: mostMoneyPotential.name
-    });
+    const target = mostMoneyPotential.name;
+    ns.print(`${target}: ${ns.getServerSecurityLevel(target).toFixed(1)} Security Level, ${ns.hackAnalyzeChance(target).toFixed(1)} Hack Chance)`);
+    await patch(ns).publishTarget(payload);
 }
