@@ -16,7 +16,7 @@
       "transform": "./transformer/rewrite-imports.ts",
       "replacements": [{
         "regex": "^(.*)$",
-        "replace": "/$1.js"
+        "replace": "./$1.js"
       }]
     }],
   },

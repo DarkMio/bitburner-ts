@@ -1,5 +1,6 @@
 import { NS } from 'bitburner';
 import { getNodes, Node } from 'utils/node-scan';
+import patch from 'utils/patch-ns';
 
 interface RootedNode extends Node {
     rooted: boolean;
@@ -49,6 +50,9 @@ const findTargetNode = async (ns: NS, nodes: RootedNode[]) => {
     }
     const payloadText = JSON.stringify(payload);
     ns.print(`## Publishing payload: ${payloadText}`);
-    ns.clearPort(1);
-    await ns.writePort(1, payloadText);
+
+    await patch(ns).publishTarget({
+        currentTarget: mostCurrentMoney.name,
+        highestPotential: mostMoneyPotential.name
+    });
 }

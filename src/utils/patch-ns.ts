@@ -1,5 +1,13 @@
 import { NS } from 'bitburner';
 
+/** Network Port for target messages */
+const TargetPort = 1;
+interface TargetMessage {
+    currentTarget: string,
+    highestPotential: string
+}
+
+
 /**
  * Patching NS for convenient, 0 additional cost functions
  */
@@ -20,6 +28,14 @@ const patch = (ns: NS) => {
         ltprint: (message: any) => {
             ns.tprint(message);
             ns.print(message);
+        },
+        fetchTarget: () => {
+            const message = ns.peek(TargetPort);
+            return JSON.parse(message) as TargetMessage;
+        },
+        publishTarget: (target: TargetMessage) => {
+            ns.clearPort(TargetPort);
+            ns.writePort(TargetPort, JSON.stringify(target));
         }
     };
 }

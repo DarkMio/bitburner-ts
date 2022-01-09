@@ -8,6 +8,7 @@ import removeParanthesis from 'contract/remove-paranthesis';
 import spiral from 'contract/spiralize-matrix';
 import { maxPrice, AST4 } from 'contract/stock-trader'
 import { getNodes, Node } from 'utils/node-scan';
+import waysToExpress, { InputData } from 'contract/ways-to-express';
 
 interface ContractInfo {
     host: string,
@@ -16,33 +17,23 @@ interface ContractInfo {
 
 export async function main(ns: NS) {
     const nodes = (await getNodes(ns, 'home')).filter(x => x.name !== 'home');
-    const contracts: ContractInfo[] = []; 
-    for(const node of nodes) {
-        const files = ns.ls(node.name).filter(x => x.endsWith('cct'));
-        files.forEach(x => contracts.push({"host": node.name, "filename": x}))
-    }
+    while(true) {
+        const contracts: ContractInfo[] = []; 
+        for(const node of nodes) {
+            const files = ns.ls(node.name).filter(x => x.endsWith('cct'));
+            files.forEach(x => contracts.push({"host": node.name, "filename": x}))
+        }
 
-    if(contracts.length > 0) {
-        ns.tprint(`Found contracts: ${contracts.map(x => `${x.filename}@${x.host}`).join('; ')}`);
-        const unsolved = solveContracts(ns, contracts);
-        unsolved.forEach(x => ns.tprint(`Unsolved contract ${x.filename} '${ns.codingcontract.getContractType(x.filename, x.host)}' @ ${x.host}`))
+        if(contracts.length > 0) {
+            ns.tprint(`Found contracts: ${contracts.map(x => `${x.filename}@${x.host}`).join('; ')}`);
+            const unsolved = await solveContracts(ns, contracts);
+            unsolved.forEach(x => ns.tprint(`Unsolved contract ${x.filename} '${ns.codingcontract.getContractType(x.filename, x.host)}' @ ${x.host}`))
+        }
+        await ns.sleep(10 * 60 * 1_000);
     }
 }
 
-const printContract = (ns: NS, contract: ContractInfo) => {
-    const type = ns.codingcontract.getContractType(contract.filename, contract.host);
-    const description = ns.codingcontract.getDescription(contract.filename, contract.host);
-    const data = ns.codingcontract.getData(contract.filename, contract.host);
-
-    ns.tprint(JSON.stringify({
-        type: type,
-        description: description,
-        data: data
-    }, undefined, 4));
-}
-
-
-const solveContracts = (ns: NS, contracts: ContractInfo[]) => {
+const solveContracts = async (ns: NS, contracts: ContractInfo[]) => {
     const unsolved: ContractInfo[] = [];
     for (const contract of contracts) {
         const type = ns.codingcontract.getContractType(contract.filename, contract.host);
@@ -79,6 +70,10 @@ const solveContracts = (ns: NS, contracts: ContractInfo[]) => {
                 break;
             case "Spiralize Matrix":
                 solution = [JSON.stringify(spiral(data as number[][]))];
+                break;
+            case "Find All Valid Math Expressions":
+                solution = [await waysToExpress(ns, data as InputData)];
+
         }
         if(solution === -1) {
             unsolved.push(contract);

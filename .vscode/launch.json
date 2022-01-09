@@ -10,7 +10,7 @@
             "port": 9222,
             "request": "attach",
             "type": "pwa-chrome",
-            "timeout": 15,
+            "timeout": 15000,
             "webRoot": "${workspaceRoot}/src",
             "sourceMapPathOverrides": {
                 "http://localhost:8000/sources/*": "${workspaceRoot}/src/*"
