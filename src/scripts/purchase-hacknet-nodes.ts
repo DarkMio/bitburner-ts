@@ -1,4 +1,5 @@
 import { NS } from 'bitburner';
+import { money } from 'utils/formatter';
 
 interface NodeStats {
     idx: number,
@@ -16,11 +17,17 @@ export async function main(ns: NS) {
 
 
     while(true) {
+        const totalNodes = ns.hacknet.numNodes();
+        const stats = [...Array(totalNodes).keys()].map(x => ns.hacknet.getNodeStats(x));
+        if(totalNodes >= 13 && stats.every(x => x.level >= 200)) {
+            return;
+        }
+
         const initialMoney = ns.getServerMoneyAvailable('home');
         // wait 5 minutes
         await ns.sleep(5 * 60 * 1_000);
-        const money = ns.getServerMoneyAvailable('home');
-        const income = money - initialMoney;
+        const totalMoney = ns.getServerMoneyAvailable('home');
+        const income = totalMoney - initialMoney;
         const availableMoney = income * (percentage / 100);
         
         let moneySpent = 0;
@@ -38,7 +45,7 @@ export async function main(ns: NS) {
             const purchaseCost = hacknet.getPurchaseNodeCost();
             const nodeStats: NodeStats[] = [];
             const nodes = hacknet.numNodes();
-            if(nodes <= 0) {
+            if(nodes <= 0 && nodes <= 13) {
                 const idx = hacknet.purchaseNode();
                 if(idx < 0) {
                     break;
@@ -66,8 +73,8 @@ export async function main(ns: NS) {
                 break;
             }
             purchases.upgrades += 1;
-            moneySpent = money - ns.getServerMoneyAvailable('home');
+            moneySpent = totalMoney - ns.getServerMoneyAvailable('home');
         }
-        ns.print(`Spent ${moneySpent.toFixed(2)}$, [${purchases.upgrades}] upgrades, [${purchases.nodes}] nodes`);
+        ns.print(`Spent ${money(moneySpent)}$, [${purchases.upgrades}] upgrades, [${purchases.nodes}] nodes`);
     }
 }

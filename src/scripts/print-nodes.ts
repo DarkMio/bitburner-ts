@@ -1,4 +1,5 @@
 import { NS } from 'bitburner';
+import { data } from 'utils/formatter';
 import { getNodes, getNodeTree, Node } from 'utils/node-scan';
 
 interface VisitorNode extends Node {
@@ -13,6 +14,8 @@ interface DistanceNode extends Node {
 export async function main(ns: NS) {
     const nodeTree = await getNodeTree(ns, 'home');
     printNode(ns, 1, nodeTree as VisitorNode);
+    ns.tprint((await getNodes(ns, 'home')).length)
+    ns.getScriptExpGain
     /*
     buildNodeData(ns, transformNodes({
         ...nodeTree,
@@ -26,7 +29,8 @@ const printNode = (ns: NS, depth: number, node: VisitorNode) => {
     const ram = ns.getServerMaxRam(node.name);
     const requiredPorts = ns.getServerNumPortsRequired(node.name);
     const requiredLevel = ns.getServerRequiredHackingLevel(node.name);
-    ns.tprint(`${"+- ".padStart(depth * 4)} ${node.name} (${ram}GB | ${requiredPorts} Ports |  ${requiredLevel} Level)`);
+    const name = ns.hasRootAccess(node.name) ? `#>${node.name.toUpperCase()}` : `$>${node.name}`; 
+    ns.tprint(`${"+- ".padStart(depth * 4)} ${name} (${data(ram)} | ${requiredPorts} Ports |  ${requiredLevel} Level)`);
     
     if(node.visited) {
         return;

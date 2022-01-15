@@ -4,15 +4,16 @@ import killProcesses from 'utils/kill-processes';
 
 const NodeDeploymentScript = '/scripts/unified-deployment.js';
 const FindTargetScript = '/scripts/find-target.js';
-const TargetingScripts = [NodeDeploymentScript, FindTargetScript];
+const ContractSolverScript = '/scripts/solve-contracts.js';
+
+const TargetingScripts = [NodeDeploymentScript, FindTargetScript, ContractSolverScript];
 
 export async function main(ns: NS) {
     killProcesses(ns, 'home', ...TargetingScripts)
 
-    if(!execIfExists(ns, NodeDeploymentScript, 'home')) {
-        ns.tprint(`# deploy-all failed!`);
-    }
-    if(!execIfExists(ns, FindTargetScript, 'home')) {
-        ns.tprint('# find-target failed!');
-    }
+    TargetingScripts.forEach(x => {
+        if(!execIfExists(ns, x, 'home')) {
+            ns.tprint(`ERROR: ${x} failed to launch`)
+        }
+    })
 }

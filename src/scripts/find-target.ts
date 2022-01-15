@@ -1,4 +1,5 @@
 import { NS } from 'bitburner';
+import { money } from 'utils/formatter';
 import { getNodes, Node } from 'utils/node-scan';
 import patch from 'utils/patch-ns';
 
@@ -53,6 +54,6 @@ const findTargetNode = async (ns: NS, nodes: RootedNode[]) => {
     const payloadText = JSON.stringify(payload);
     ns.print(`## Publishing payload: ${payloadText}`);
     const target = mostMoneyPotential.name;
-    ns.print(`${target}: ${ns.getServerSecurityLevel(target).toFixed(1)} Security Level, ${ns.hackAnalyzeChance(target).toFixed(1)} Hack Chance)`);
+    ns.print(`${target}: ${ns.getServerSecurityLevel(target).toFixed(1)} Security Level, ${ns.hackAnalyzeChance(target).toFixed(1)} Hack Chance, ${money(ns.getServerMoneyAvailable(target))}$ available)`);
     await patch(ns).publishTarget(payload);
 }

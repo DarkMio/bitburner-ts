@@ -9,6 +9,9 @@ import fs from "fs";
 try {
   express()
     .use(cors())
+    .post('/echo', (req, res) => {
+      res.json({"echo": req.method})
+    })
     .get('/index.json', async (req, res) => {
       glob("dist/**/*.js", (err, result) => {
         const modifiedDates = result.map(x => new Date(fs.statSync(x).mtime).getTime());

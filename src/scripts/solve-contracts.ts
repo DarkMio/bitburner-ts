@@ -10,11 +10,13 @@ import { maxPrice, AST4 } from 'contract/stock-trader'
 import { getNodes, Node } from 'utils/node-scan';
 import waysToExpress, { InputData } from 'contract/ways-to-express';
 import waysToSum from 'contract/ways-to-sum';
+import minimumSumInTriangle from 'contract/minimum-sum-triangle';
+import arrayJumping from 'contract/array-jumping';
 
 interface ContractInfo {
     host: string,
     filename: string
-} 
+}
 
 export async function main(ns: NS) {
     ns.disableLog('ALL');
@@ -48,6 +50,12 @@ const solveContracts = async (ns: NS, contracts: ContractInfo[]) => {
             case "Algorithmic Stock Trader I":
                 solution = maxPrice([1, data as number[]]);
                 break;
+            case "Algorithmic Stock Trader II":
+                solution = maxPrice([Math.ceil(data.length / 2), data as number[]]);
+                break;
+            case "Algorithmic Stock Trader III":
+                solution = maxPrice([2, data as number[]]);
+                break;
             case "Algorithmic Stock Trader IV":
                 solution = maxPrice(data as AST4);
                 break;
@@ -77,7 +85,13 @@ const solveContracts = async (ns: NS, contracts: ContractInfo[]) => {
                 break;
             case "Total Ways to Sum":
                 solution = waysToSum(data as number);
-
+                break;
+            case "Minimum Path Sum in a Triangle":
+                solution = minimumSumInTriangle(data as number[][]);
+                break;
+            case "Array Jumping Game":
+                solution = arrayJumping(data as number[]);
+                break;
         }
         if(solution === -1) {
             unsolved.push(contract);

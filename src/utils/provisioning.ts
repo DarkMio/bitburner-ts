@@ -20,11 +20,6 @@ export const provisionTarget = async (ns: NS, target: string) => {
 }
 
 export const rootTarget = async (ns: NS, target: string): Promise<boolean> => {
-    const enoughLevel = ns.getServerRequiredHackingLevel(target) <= ns.getHackingLevel();
-    if(!enoughLevel) {
-        return false;
-    }
-
     let hackCount = 0;
     executeIfAvailable(ns, SshPortCommand, async () => {
         ns.brutessh(target);

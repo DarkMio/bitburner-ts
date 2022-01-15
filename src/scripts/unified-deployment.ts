@@ -1,4 +1,5 @@
 import { NS } from 'bitburner';
+import { ram, thousands } from 'utils/formatter';
 import killProcesses from 'utils/kill-processes';
 import { getNodes, Node } from 'utils/node-scan';
 import { provisionTarget, rootTarget } from 'utils/provisioning';
@@ -28,11 +29,11 @@ export async function main(ns: NS) {
             continue;
         }
         lastTotalRam = totalRam;
-        ns.tprint(`Total available ram is now ${totalRam}GB on [${ramHosts.length}] hosts`)
+        ns.tprint(`Total available ram is now ${ram(totalRam)} on [${thousands(ramHosts.length)}] hosts`)
         // calulate optimal script ratios for the total amount of ram
         const { totalHacks, totalGrow, totalWeaken, totalThreads, remainingRam } = calculateScriptCount(ns, totalRam);
         const percentage = (x: number) => (x * 100 / totalThreads).toFixed(1);
-        ns.print(`Executing ${totalHacks}/${totalWeaken}/${totalGrow} hack/weaken/grow (Ratio: ${percentage(totalHacks)}%/${percentage(totalWeaken)}%/${percentage(totalGrow)}%), remaining RAM: ${remainingRam}`);
+        ns.print(`Executing ${thousands(totalHacks)}/${thousands(totalWeaken)}/${thousands(totalGrow)} hack/weaken/grow (Ratio: ${percentage(totalHacks)}%/${percentage(totalWeaken)}%/${percentage(totalGrow)}%), remaining RAM: ${ram(remainingRam)}`);
         
         // execute the plan by self-partitioning
         await executeScripts(ns, ramHosts, totalHacks, totalGrow, totalWeaken);
@@ -89,7 +90,7 @@ const executeScripts = async (ns: NS, ramNodes: RamNode[], totalHack: number, to
 
     for (const node of cloudNodes) {
         const { hackUses, growUses, weakenUses, availableRam } = saturateScripts(ns, node, totalHack, totalGrow, totalWeaken)
-        ns.print(`For '${node.name}' saturating [${growUses}/${weakenUses}/${hackUses}] grow/weaken/hack (remaining RAM: ${availableRam.toFixed(2)})`);
+        ns.print(`For '${node.name}' saturating [${growUses}/${weakenUses}/${hackUses}] grow/weaken/hack (remaining RAM: ${ram(availableRam)})`);
         await exec(ns, node, hackUses, growUses, weakenUses);
         totalHack -= hackUses;
         totalGrow -= growUses;
@@ -173,7 +174,7 @@ const calculateScriptCount = (ns: NS, totalRam: number) => {
     // calculate the most optimal script count
     const [growUsage, weakenUsage, hackUsage] = [ns.getScriptRam(GrowScript), ns.getScriptRam(WeakenScript), ns.getScriptRam(HackScript)];
     // the optimal ratio as written in the docs
-    const [hackRatio, growRatio, weakenRatio] = [1, 12, 2];    
+    const [hackRatio, growRatio, weakenRatio] = [1, 15, 4];    
     // the total usage of an optimal ratio block
     const totalUsage = growUsage * growRatio + weakenUsage * weakenRatio + hackUsage * hackRatio;
     // factor of how many blocks can fit

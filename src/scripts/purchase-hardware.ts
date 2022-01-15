@@ -1,4 +1,5 @@
 import { NS } from 'bitburner';
+import { ram as ramFmt } from 'utils/formatter';
 
 
 
@@ -11,7 +12,7 @@ export async function main(ns: NS) {
     let serverCount = ns.getPurchasedServers().length;
     let funds = ns.getServerMoneyAvailable('home');
 
-    if(! (await ns.prompt(`You can buy at most a ${maxRam}GB server, with ${serverCount}/${maxServers} slots being used, proceed?`))) {
+    if(! (await ns.prompt(`You can buy at most a ${ramFmt(maxRam)} server, with ${serverCount}/${maxServers} slots being used, proceed?`))) {
         return;
     }
 
@@ -22,13 +23,12 @@ export async function main(ns: NS) {
         if(cost <= funds || serverCount >= maxServers) {
             let boughtServers = 0;
             while(funds > cost) {
-                const date = new Date();
-                ns.purchaseServer(`${ram}GB-${date.toISOString().split('T')[0]}`, ram);
+                ns.purchaseServer(`${ramFmt(ram)}-${Date.now()}`, ram);
                 funds -= cost;
                 boughtServers += 1;
                 serverCount += 1;
             }
-            ns.tprint(`Bought [${boughtServers}] servers at [${ram}]GB ram`);
+            ns.tprint(`Bought [${boughtServers}] servers at [${ramFmt(ram)}] ram`);
             break;
         }
     }
