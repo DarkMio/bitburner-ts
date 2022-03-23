@@ -12,7 +12,7 @@ export async function main(ns: NS) {
     killProcesses(ns, 'home', ...TargetingScripts)
 
     TargetingScripts.forEach(x => {
-        if(!execIfExists(ns, x, 'home')) {
+        if(!execIfExists(ns, x, 'home', 1, ...ns.args)) {
             ns.tprint(`ERROR: ${x} failed to launch`)
         }
     })

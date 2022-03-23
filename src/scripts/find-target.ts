@@ -22,7 +22,7 @@ export async function main(ns: NS) {
             .filter(x => x.name !== 'home')
             // split this map for early filtering
             .map(x => {
-                x.rooted = ns.hasRootAccess(x.name);
+                x.rooted = ns.getServerRequiredHackingLevel(x.name) <= ns.getHackingLevel() && ns.hasRootAccess(x.name);
                 return x;
             })
             .filter(x => x.rooted)

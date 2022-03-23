@@ -49,7 +49,7 @@ export async function main(ns: NS) {
             await ns.sleep(5);
         }
         
-        if(!execIfExists(ns, `${DeployFolder}${BootstrapScript}`, HomeHost)) {
+        if(!execIfExists(ns, `${DeployFolder}${BootstrapScript}`, HomeHost, 1, ...ns.args)) {
             ns.print(`## FAILED to spawn bootstrap script, start with: run ${DeployFolder}${BootstrapScript}`);
         }
 

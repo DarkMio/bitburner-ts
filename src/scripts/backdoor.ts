@@ -6,7 +6,8 @@ export async function main(ns: NS) {
         "CSEC": await seek(ns, 'CSEC'),
         "The Black Hand": await seek(ns, 'I.I.I.I'),
         "Nitesec": await seek(ns, 'avmnite-02h'),
-        "Bitchrunners": await seek(ns, 'run4theh111z')
+        "Bitchrunners": await seek(ns, 'run4theh111z'),
+        "w0r1d_d43m0n": await seek(ns, 'w0r1d_d43m0n')
     }
     ns.tprint(`\n${JSON.stringify(routes, undefined, 4)}`);
 }

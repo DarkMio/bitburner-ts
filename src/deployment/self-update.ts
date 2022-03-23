@@ -1,8 +1,5 @@
 import { NS } from 'bitburner';
 
-/** This is just an arbitrary identifier to signal that this script has finished redeployment */
-export const DeployKey = "6uTdsrmCVG8^Bee*^UB46myYQya&4Qc#"
-
 /** There is no way to get how this script is called, therefore it's hardcoded here */
 export const InitScriptFile = "init.js";
 export const DeployFolder = "/";
@@ -51,9 +48,9 @@ export async function main(ns: NS) {
         return; 
     }
 
-    const pid = ns.exec(RedeployLocation, HomeHost, 1, ...ns.args, DeployKey);
+    const pid = ns.exec(RedeployLocation, HomeHost, 1, ...ns.args);
     if(pid === 0) {
-        ns.print(`## FAILED to spawn redeployment, start manually with: run ${RedeployLocation} -t 1 ${DeployKey}`);
+        ns.print(`## FAILED to spawn redeployment, start manually with: run ${RedeployLocation} -t 1`);
     } else {
         ns.print(`## Spawned redeployment, PID: [${pid}]`);
     }

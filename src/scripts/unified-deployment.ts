@@ -8,7 +8,8 @@ const ProvisioningScript = "/scripts/provisioning.js";
 const HackScript = "/scripts/hacks/hack.js";
 const WeakenScript = "/scripts/hacks/weaken.js";
 const GrowScript = "/scripts/hacks/grow.js";
-const DeployedScripts = [HackScript, WeakenScript, GrowScript];
+const ExpScript = "/scripts/hacks/exp.js";
+const DeployedScripts = [HackScript, WeakenScript, GrowScript, ExpScript];
 
 const ReservedHomeRam = 150;
 
@@ -30,14 +31,17 @@ export async function main(ns: NS) {
         }
         lastTotalRam = totalRam;
         ns.tprint(`Total available ram is now ${ram(totalRam)} on [${thousands(ramHosts.length)}] hosts`)
-        // calulate optimal script ratios for the total amount of ram
-        const { totalHacks, totalGrow, totalWeaken, totalThreads, remainingRam } = calculateScriptCount(ns, totalRam);
-        const percentage = (x: number) => (x * 100 / totalThreads).toFixed(1);
-        ns.print(`Executing ${thousands(totalHacks)}/${thousands(totalWeaken)}/${thousands(totalGrow)} hack/weaken/grow (Ratio: ${percentage(totalHacks)}%/${percentage(totalWeaken)}%/${percentage(totalGrow)}%), remaining RAM: ${ram(remainingRam)}`);
-        
-        // execute the plan by self-partitioning
-        await executeScripts(ns, ramHosts, totalHacks, totalGrow, totalWeaken);
-        
+        if(ns.args[0] === 'exp') {
+            executeExp(ns, ramHosts);
+        } else {
+            // calulate optimal script ratios for the total amount of ram
+            const { totalHacks, totalGrow, totalWeaken, totalThreads, remainingRam } = calculateScriptCount(ns, totalRam);
+            const percentage = (x: number) => (x * 100 / totalThreads).toFixed(1);
+            ns.print(`Executing ${thousands(totalHacks)}/${thousands(totalWeaken)}/${thousands(totalGrow)} hack/weaken/grow (Ratio: ${percentage(totalHacks)}%/${percentage(totalWeaken)}%/${percentage(totalGrow)}%), remaining RAM: ${ram(remainingRam)}`);
+
+            // execute the plan by self-partitioning
+            await executeScripts(ns, ramHosts, totalHacks, totalGrow, totalWeaken);
+        }
         // check every 1 minute for changes 
         await ns.sleep(60 * 1_000);
     }
@@ -58,6 +62,7 @@ const provision = async (ns: NS, nodes: Node[]): Promise<RootedNode[]> => {
             ...node,
             rooted: await rootNode(ns, node)
         });
+        await ns.scp(DeployedScripts, 'home', node.name);
     }
     return rootedNodes.filter(x => x.rooted);
 }
@@ -82,6 +87,22 @@ const calculateTotalRam = (ns: NS, nodes: RootedNode[]): [number, RamNode[]] => 
         totalRam += ramAvailable;
     }
     return [totalRam, ramNodes.filter(x => x.availableRam > 0)];
+}
+
+const executeExp = (ns: NS, ramNodes: RamNode[]) => {
+    const requiredRam = ns.getScriptRam(ExpScript);
+    for (const node of ramNodes) {
+        let availableRam = node.availableRam;
+        if(node.name === 'home') {
+            availableRam -= ReservedHomeRam;
+        }
+        const instances = Math.floor(availableRam / requiredRam);
+        if(instances <= 0) {
+            continue;
+        }
+        killProcesses(ns, node.name, ...DeployedScripts);
+        ns.tprint(`${node.name} => ${instances};; ${ns.exec(ExpScript, node.name, instances)}`);
+    }
 }
 
 const executeScripts = async (ns: NS, ramNodes: RamNode[], totalHack: number, totalGrow: number, totalWeaken: number) => {
